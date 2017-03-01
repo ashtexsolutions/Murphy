@@ -1,5 +1,7 @@
 <?php
 
+@session_start();
+
 class MonkeyTester implements RocketSled\Runnable {
 
     private $dbconfig_path = ""; // Path of dbconfig file
@@ -85,6 +87,13 @@ class MonkeyTester implements RocketSled\Runnable {
 	    }
 	}
 	return TRUE;
+    }
+
+    static function isTestingEnviromentSet() {
+	if (isset($_SESSION["SMOKE_TESTING_ENVIRONMENT"]) && $_SESSION["SMOKE_TESTING_ENVIRONMENT"] == TRUE) {
+	    return TRUE;
+	}
+	return FALSE;
     }
 
 }
