@@ -97,7 +97,3 @@ class MonkeyTester implements RocketSled\Runnable {
     }
 
 }
-
-class InvalidMurphyTestException extends Exception {
-    
-}
