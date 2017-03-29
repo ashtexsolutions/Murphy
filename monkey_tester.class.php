@@ -4,6 +4,8 @@
 
 class MonkeyTester implements RocketSled\Runnable {
 
+    const FIXTURES_PATH = "./smoke_tests/fixtures/";
+
     private $dbconfig_path = ""; // Path of dbconfig file
     private $dbconfig = array();
     private $action = "";
@@ -12,11 +14,10 @@ class MonkeyTester implements RocketSled\Runnable {
 
     public function run() {
 
-	$this->action = Args::get('action', Args::argv);
-	$this->fixtures = Args::get('fixtures', Args::argv);
-	$this->dbconfig_path = Args::get('dbconfig', Args::argv);
-	$this->fixture_path = Args::get('fixture_path', Args::argv);
-
+	$this->action = Args::get('action', $_GET);
+	$this->fixtures = Args::get('fixtures', $_GET);
+	$this->dbconfig_path = Args::get('dbconfig', $_GET);
+	$this->fixture_path = Args::get('fixture_path', $_GET);
 
 	if (!isset($this->action)) {
 	    echo "No action is specified." . PHP_EOL;
@@ -54,17 +55,13 @@ class MonkeyTester implements RocketSled\Runnable {
 
 	    $this->dbconfig = include($this->dbconfig_path);
 	    $this->fixtures = explode(",", $this->fixtures);
-
-	    if (!isset($this->fixture_path)) {
-		// If no fixture path is given, using default path
-		$this->fixture_path = '/../MonkeyFixtures/';
-	    }
+	    $this->fixture_path = strlen($this->fixture_path) ? $this->fixture_path : self::FIXTURES_PATH;
 
 	    if ($this->fixtureExists($this->fixtures)) {
-		$monkeyFixture = \Murphy\Fixture::load($this->dbconfig["db_name"], dirname(__FILE__) . $this->fixture_path . $this->fixtures[0]);
+		$monkeyFixture = \Murphy\Fixture::load($this->dbconfig["db_name"], $this->fixture_path . $this->fixtures[0]);
 		if (sizeof($this->fixtures) > 1) {
 		    for ($i = 1; $i < sizeof($this->fixtures); $i++) {
-			$monkeyFixture->also($this->dbconfig["db_name"], dirname(__FILE__) . $this->fixture_path . $this->fixtures[$i]);
+			$monkeyFixture->also($this->dbconfig["db_name"], $this->fixture_path . $this->fixtures[$i]);
 		    }
 		}
 		$monkeyFixture->execute(function() {
@@ -81,7 +78,7 @@ class MonkeyTester implements RocketSled\Runnable {
 
     function fixtureExists($fixtures) {
 	foreach ($fixtures as $fixture) {
-	    if (!file_exists(dirname(__FILE__) . $this->fixture_path . $fixture)) {
+	    if (!file_exists($this->fixture_path . $fixture)) {
 		echo "fixture '{$fixture}' not found." . PHP_EOL;
 		exit(1);
 	    }

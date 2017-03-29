@@ -50,7 +50,7 @@
 
             if(count($databases))
             {
-                if(!$dbconfig_path = Args::get('dbconfig',Args::argv))
+                if((!$dbconfig_path = Args::get('dbconfig',Args::argv)) && (!$dbconfig_path = Args::get('dbconfig',$_GET)))
                 {
                     echo 'You need to include dbconfig in the command line arguments'.PHP_EOL;
                     exit(1);
