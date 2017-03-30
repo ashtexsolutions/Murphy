@@ -11,6 +11,8 @@ class MonkeyTester implements RocketSled\Runnable {
     private $action = "";
     private $fixtures = "";
     private $fixture_path = "";
+    private $forbiden_hostname = "";
+    private $current_hostname = "";
 
     public function run() {
 
@@ -18,6 +20,8 @@ class MonkeyTester implements RocketSled\Runnable {
 	$this->fixtures = Args::get('fixtures', $_GET);
 	$this->dbconfig_path = Args::get('dbconfig', $_GET);
 	$this->fixture_path = Args::get('fixture_path', $_GET);
+	$this->forbiden_hostname = Args::get('forbiden_hostname', $_GET);
+	$this->current_hostname = php_uname('n');
 
 	if (!isset($this->action)) {
 	    echo "No action is specified." . PHP_EOL;
@@ -49,7 +53,14 @@ class MonkeyTester implements RocketSled\Runnable {
 	}
 
 	if ($this->action == "CREATE_ENVIROMENT") {
-	    $_SESSION["SMOKE_TESTING_ENVIRONMENT"] = TRUE;
+	    if (isset($this->forbiden_hostname) && $this->forbiden_hostname == $this->current_hostname) {
+		echo "Enviroment Not Created, Cannot run tests on this host";
+	    }
+	    else {
+		@session_unset();
+		$_SESSION["SMOKE_TESTING_ENVIRONMENT"] = TRUE;
+		echo "Enviroment Created";
+	    }
 	}
 	elseif ($this->action == "LOAD_FIXTURE") {
 
